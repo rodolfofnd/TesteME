@@ -1,8 +1,8 @@
-using AutoMapper;
 using Dapper;
 using MercadoEletronico.API.Application.ViewModels;
 using MercadoEletronico.API.Core;
 using MercadoEletronico.API.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,6 +52,15 @@ namespace MercadoEletronico.API.Applications.Queries
         public async Task<StatusResponse> ObterStatus(StatusRequest statusRequest)
         {
             var pedido = await _pedidoRepository.ObterPorPedido(statusRequest.pedido);
+
+            if (pedido == null)
+            {
+                var statusResponse = new StatusResponse();
+                statusResponse.status = new List<string>();
+                statusResponse.status.Add("CODIGO_PEDIDO_INVALIDO");
+
+                return statusResponse;
+            }
 
             const string sql = @"SELECT sum(qtd) as qtdTotal, 
                                 sum(precoUnitario) as valorTotal 

@@ -28,33 +28,74 @@ namespace MercadoEletronico.API.V1.Controllers
         [HttpGet("{pedido}")]
         public async Task<IActionResult> Obter(string pedido)
         {
-            if (String.IsNullOrEmpty(pedido)) return NotFound();
+            try
+            {
+                if (String.IsNullOrEmpty(pedido)) return NotFound("PEDIDO_NÃO_ENCONTRADO");
 
-            var resultado = await _pedidoQueries.ObterPedido(pedido);
+                var resultado = await _pedidoQueries.ObterPedido(pedido);
 
-            return resultado == null ? NotFound() : Ok(resultado);
+                return resultado == null ? NotFound("PEDIDO_NÃO_ENCONTRADO") : Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{pedido}")]
         public async Task<IActionResult> Deletar(string pedido)
         {
-            ExcluirPedidoCommand command = new ExcluirPedidoCommand(pedido);
-            var response = await _mediator.Send(command);
-            return Ok();
+            try
+            {
+                ExcluirPedidoCommand command = new ExcluirPedidoCommand(pedido);
+                var response = await _mediator.Send(command);
+
+                if (!response)
+                    return BadRequest("ERRO_VALIDAÇÃO");
+
+                return Ok("SUCESSO_EXCLUSÃO");
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "PEDIDO_NÃO_ENCONTRADO")
+                    return NotFound("PEDIDO_NÃO_ENCONTRADO");
+
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut()]
         public async Task<IActionResult> Alterar([FromBody] AlterarPedidoCommand command)
         {
-            var response = await _mediator.Send(command);
-            return Ok();
+            try
+            {
+                var response = await _mediator.Send(command);
+                if (!response)
+                    return BadRequest("ERRO_VALIDAÇÃO");
+
+                return Ok("SUCESSO_ALTERAÇÃO");
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "PEDIDO_NÃO_ENCONTRADO")
+                    return NotFound("PEDIDO_NÃO_ENCONTRADO");
+
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost()]
         public async Task<IActionResult> Incluir([FromBody] CriarPedidoCommand command)
         {
-            var response = await _mediator.Send(command);
-            return Ok();
+            try
+            {
+                var response = await _mediator.Send(command);
+                return Ok("SUCESSO_INCLUSÃO");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
     }

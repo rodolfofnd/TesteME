@@ -21,13 +21,13 @@ namespace MercadoEletronico.API.Applications.Commands
 
         public bool EhValido()
         {
-            var validation = new ObterPedidoValidation().Validate(this);
+            var validation = new CriarPedidoValidation().Validate(this);
             return validation.IsValid;
         }
 
-        public class ObterPedidoValidation : AbstractValidator<CriarPedidoCommand>
+        public class CriarPedidoValidation : AbstractValidator<CriarPedidoCommand>
         {
-            public ObterPedidoValidation()
+            public CriarPedidoValidation()
             {
                 RuleFor(c => c.pedido)
                     .NotNull()

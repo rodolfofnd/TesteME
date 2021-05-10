@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using MercadoEletronico.API.Application.ViewModels;
 using MercadoEletronico.API.Applications.Queries;
@@ -17,12 +18,19 @@ namespace MercadoEletronico.API.V1.Controllers
         {
             _pedidoQueries = pedidoQueries;
         }
-       
+
         [HttpPost()]
         public async Task<IActionResult> Status([FromBody] StatusRequest statusRequest)
         {
-            var resultado = await _pedidoQueries.ObterStatus(statusRequest);
-            return Ok(resultado);
+            try
+            {
+                var resultado = await _pedidoQueries.ObterStatus(statusRequest);
+                return Ok(resultado);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
