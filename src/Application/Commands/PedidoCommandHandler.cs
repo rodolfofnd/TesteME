@@ -1,6 +1,7 @@
 using MediatR;
 using MercadoEletronico.API.Core;
 using MercadoEletronico.API.Models;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,6 +29,7 @@ namespace MercadoEletronico.API.Applications.Commands
             if (!message.EhValido()) return false;
 
             var pedido = _pedidoRepository.CriarPedido(new Pedido { pedido = message.pedido });
+            
             await _pedidoRepository.UnitOfWork.Commit();
 
             foreach (var item in message.itens)
@@ -50,6 +52,9 @@ namespace MercadoEletronico.API.Applications.Commands
             if (!message.EhValido()) return false;
 
             var pedido = await _pedidoRepository.ObterPorPedido(message.pedido);
+            if (pedido == null)
+                throw new Exception("PEDIDO_NÃO_ENCONTRADO");
+
             pedido.itens = await _itemPedidoRepository.ListarPorId(pedido.idPedido);
 
             foreach (var item in pedido.itens)
@@ -77,6 +82,10 @@ namespace MercadoEletronico.API.Applications.Commands
             if (!message.EhValido()) return false;
 
             var pedido = await _pedidoRepository.ObterPorPedido(message.pedido);
+
+            if (pedido == null)
+                throw new Exception("PEDIDO_NÃO_ENCONTRADO");
+
             pedido.itens = await _itemPedidoRepository.ListarPorId(pedido.idPedido);
 
             foreach (var item in pedido.itens)
